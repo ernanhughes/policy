@@ -1,144 +1,147 @@
-# Policy
+# 🛡️ Policy — Risk-Bounded AI Governance Framework
 
-**Model-agnostic AI governance container with adaptive calibration and drift detection.**
+**Policy** is a Z-space normalized governance layer for AI systems.
 
----
+It wraps any callable model and enforces calibrated, distribution-aware decision boundaries using hallucination-energy (or any risk scalar).
 
-## Motivation
-
-Self-improving AI systems can drift, destabilize, or degrade over time.
-
-Policy Governor provides a deterministic governance layer that:
-
-* Wraps any AI system
-* Evaluates output risk via external scoring (e.g. hallucination energy)
-* Learns thresholds dynamically
-* Detects distribution drift
-* Enforces ACCEPT / REVIEW / REJECT decisions
-
-It is fully decoupled from:
-
-* Any specific model
-* Any embedding backend
-* Any AI architecture
-
-This makes it deployable across research systems, production AI pipelines, and safety-critical applications.
+This is not filtering.
+This is **risk containment mathematics**.
 
 ---
 
-## Core Architecture
+## 🎯 Core Idea
 
-```css All right
-AI System (Black Box)
-        ↓
-Energy Function (External)
-        ↓
-Calibrator (Adaptive)
-        ↓
-Policy Container
-        ↓
-ACCEPT / REVIEW / REJECT
-```
+We treat model uncertainty as a measurable scalar: **energy**.
 
----
+We then:
 
-## Example Usage
+1. Learn the positive distribution.
+2. Calibrate a threshold.
+3. Normalize everything into **Z-space**.
+4. Enforce bounded decision logic.
 
-```python
-from policy.core.policy_container import PolicyContainer
-from policy.calibration.quantile_calibrator import QuantileCalibrator
+This produces:
 
-def my_ai(input_data):
-    return {"text": "Generated output"}
-
-def energy_fn(output, context):
-    return 0.15  # example energy
-
-calibrator = QuantileCalibrator(
-    quantile=0.2,
-    warmup=50
-)
-
-policy = PolicyContainer(
-    ai_callable=my_ai,
-    energy_function=energy_fn,
-    calibrator=calibrator,
-    calibration=None
-)
-
-output, decision = policy.execute({"prompt": "Hello"})
-print(decision.verdict)
-```
-
----
-
-## Features
-
-* Dynamic quantile calibration
-* Z-score calibration
+* Scale invariance
+* Distribution awareness
 * Drift detection
-* Margin-based decisions
-* Full decision trace object
-* Simulation harness for runaway degradation experiments
-* Statistical reporting
-* Trajectory & variance visualization
+* Risk-bounded containment
 
 ---
 
-## Research Motivation
-
-Policy Governor is designed to:
-
-* Prevent runaway degradation
-* Provide mathematically defensible thresholds
-* Separate governance from model logic
-* Enable publishable safety experiments
-
----
-
-## Installation
+## 📦 Installation
 
 ```bash
-pip install policy
+pip install policy-governance
 ```
 
 Or locally:
 
 ```bash
-pip install .
+pip install -e .
 ```
 
 ---
 
-## Development
+## 🚀 Quick Example
 
-```bash
-pip install .[dev]
-pytest
+```python
+from policy.core.policy_container import PolicyContainer
+from policy.calibration.adaptive_calibrator import AdaptiveCalibrator
+
+def ai(x):
+    return {"value": x}
+
+def energy(output, ctx):
+    return abs(output["value"] - 1.0)
+
+# Calibrate
+calibrator = AdaptiveCalibrator(percentile=95.0)
+calibration = calibrator.calibrate(positive_energies)
+
+policy = PolicyContainer(
+    ai_callable=ai,
+    energy_function=energy,
+    calibrator=calibrator,
+    calibration=calibration,
+)
+
+output, decision = policy.execute(0.8)
+
+print(decision.verdict)
 ```
 
 ---
 
-## License
+## 📐 Z-Space Decision Rule
 
-Apache 2.0
+We normalize energy:
+
+```
+z = (energy - μ) / σ
+```
+
+Decision boundary:
+
+```
+REJECT  if z ≥ τ_z + reject_margin
+REVIEW  if z >  τ_z + review_margin
+ACCEPT  otherwise
+```
+
+Where:
+
+```
+τ_z = (τ - μ) / σ
+```
+
+This guarantees:
+
+* Scale invariance
+* Distribution awareness
+* Calibrated containment
 
 ---
 
-# 3️⃣ Paper Abstract (Clean + Academic Tone)
+## 🧪 Included Experiments
 
-You can drop this into a paper draft immediately.
+* Runaway self-modification simulation
+* Distribution separation tests
+* Z-space invariance verification
+* Drift detection validation
 
 ---
 
-### Abstract
+## 📊 What This Framework Guarantees
 
-Self-improving AI systems are vulnerable to runaway degradation when iterative updates accumulate error or distributional drift. While model-centric approaches attempt to mitigate hallucination and instability internally, they often entangle governance logic with learning dynamics.
+✔ Decision boundaries are invariant to scaling
+✔ Drift is detectable in Z-space
+✔ Tail risk is constrained
+✔ Calibration artifacts are portable
 
-We introduce **Policy Governor**, a model-agnostic governance container that wraps arbitrary AI systems and enforces calibrated decision boundaries based on externally computed risk signals, such as hallucination energy. The framework separates execution from evaluation, enabling deterministic ACCEPT / REVIEW / REJECT decisions without modifying the underlying model.
+---
 
-Policy Governor employs adaptive calibration mechanisms—including quantile-based and z-score normalization—combined with drift detection over rolling distributions. This architecture allows thresholds to adjust dynamically while maintaining statistical interpretability.
+## 🧠 Intended Use
 
-We demonstrate, through simulated runaway degradation experiments, that policy-bounded systems exhibit significantly reduced variance and bounded energy trajectories compared to unregulated baselines. The results suggest that externalized policy enforcement provides a stable control mechanism for self-improving AI pipelines.
+* LLM hallucination gating
+* Agentic system containment
+* Policy-bounded self-modification
+* High-assurance deployment environments
 
-This separation of governance from cognition establishes a deployable, model-independent safety layer applicable across research and production environments.
+---
+
+## 📖 Documentation
+
+See:
+
+* `docs/theory.md`
+* `docs/calibration.md`
+* `docs/architecture.md`
+* `docs/experiments.md`
+* `docs/testing.md`
+
+---
+
+## 📜 License
+
+Apache 2.0 License
