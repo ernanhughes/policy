@@ -3,28 +3,13 @@
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass
 from typing import Callable, Any, Dict, List, Optional
 
 import numpy as np
 
 from policy.protocols.calibration import CalibratorProtocol
 from policy.calibrator.adaptive_calibrator import CalibrationResult
-
-
-# ============================================================
-# Decision Object
-# ============================================================
-
-@dataclass
-class PolicyDecision:
-    verdict: str
-    energy: float
-    margin: float
-    drift_score: float
-    timestamp: float
-    metadata: Dict[str, Any]
-
+from policy.custom_types import PolicyDecision
 
 # ============================================================
 # Policy Container

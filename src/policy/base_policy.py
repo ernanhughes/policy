@@ -1,8 +1,8 @@
 from .governance_signal import GovernanceSignal
-from .dominance import DominanceEngine
+from .monitoring.dominance import DominanceEngine
 from .calibration import EnergyRegimeEstimator
-from .monitor import EnergySpiralDetector
-from .decision import Decision
+from .monitoring.energy_spiral_detector import EnergySpiralDetector
+from .custom_types import Decision
 
 
 class BasePolicy:

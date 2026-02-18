@@ -4,11 +4,29 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
+class Decision(str, Enum):
+    ACCEPT = "accept"
+    REJECT = "reject"
+    REVIEW = "review"
+    FREEZE = "freeze"
+    ESCALATE = "escalate"
+
 
 class Verdict(Enum):
     ACCEPT = "accept"
     REVIEW = "review"
     REJECT = "reject"
+
+
+@dataclass
+class PolicyDecision:
+    verdict: str  # expected: "ACCEPT" | "REVIEW" | "REJECT"
+    energy: float
+    margin: float
+    drift_score: float
+    timestamp: float
+    metadata: Dict[str, Any]
+
 
 @dataclass(frozen=True)
 class SupportDiagnostics:
@@ -180,6 +198,38 @@ class EnergyResult:
             "geometry": self.geometry.to_dict(),
         }
 
+@dataclass(frozen=True)
+class DecisionTrace:
+    """
+    Deterministic explanation of a 3-axis geometry-aware policy decision.
+    """
+
+    # === Core Energy Axis ===
+    energy: float
+    alignment: float  # |dot(claim, v1)|
+
+    # === Geometry Axis ===
+    participation_ratio: float
+    sensitivity: float
+    effectiveness: float
+    difficulty: float
+
+    # Policy thresholds
+    tau_accept: Optional[float]
+    tau_review: Optional[float]
+    pr_threshold: Optional[float]
+    sensitivity_threshold: Optional[float]
+    margin_band: Optional[float]
+
+    # Policy metadata
+    policy_name: str
+    hard_negative_gap: float
+
+    # Final action
+    verdict: str  # expected: "accept" | "review" | "reject"
+
+    def to_dict(self) -> dict:
+        return asdict(self)
 
 
 @dataclass(frozen=True)
@@ -246,40 +296,6 @@ class EvaluationResult:
             }
 
         return data
-
-@dataclass(frozen=True)
-class DecisionTrace:
-    """
-    Deterministic explanation of a 3-axis geometry-aware policy decision.
-    """
-
-    # === Core Energy Axis ===
-    energy: float
-    alignment: float  # |dot(claim, v1)|
-
-    # === Geometry Axis ===
-    participation_ratio: float
-    sensitivity: float
-    effectiveness: float
-    difficulty: float
-
-    # Policy thresholds
-    tau_accept: Optional[float]
-    tau_review: Optional[float]
-    pr_threshold: Optional[float]
-    sensitivity_threshold: Optional[float]
-    margin_band: Optional[float]
-
-    # Policy metadata
-    policy_name: str
-    hard_negative_gap: float
-
-    # Final action
-    verdict: str  # expected: "accept" | "review" | "reject"
-
-    def to_dict(self) -> dict:
-        return asdict(self)
-
 
 def why_rejected(trace: DecisionTrace) -> str:
     """

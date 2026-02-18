@@ -33,6 +33,8 @@ def test_zspace_acceptance_invariant():
         energy_function=dummy_energy,
         calibrator=StaticCalibrator(),
         calibration=calibration,
+        review_margin=0.0,
+        reject_margin=2.0,
     )
 
     tau_z = (calibration.tau_energy - calibration.energy_mean) / calibration.energy_std
@@ -43,7 +45,8 @@ def test_zspace_acceptance_invariant():
 
         _, decision = policy.execute({"value": energy})
 
-        if z < tau_z:
+        # Your policy accepts on equality at review boundary (z == tau_z)
+        if z <= tau_z:
             assert decision.verdict == "ACCEPT"
         elif z > tau_z:
             assert decision.verdict in ("REVIEW", "REJECT")
