@@ -2,13 +2,10 @@ from typing import Any, Dict, List, Optional, Protocol
 
 import numpy as np
 
-
-class Calibrator(Protocol):
-
-    from typing import Protocol, List, Optional
-
-
 class CalibratorProtocol(Protocol):
+    energy_mean: float
+    energy_std: float
+    tau_energy: float
 
     def update(self, energy: float) -> None:
         ...

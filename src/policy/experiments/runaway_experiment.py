@@ -36,23 +36,37 @@ class RunawayDeclineExperiment:
 
         for step in range(self.episodes):
 
+            # Save previous state for rollback
+            prev_quality = state["quality"]
+
             # Simulate self-modification drift
             state["quality"] += random.gauss(0, self.noise_scale)
 
             output = self.ai_callable(state)
-
             energy = self.energy_function(output, {})
+
+            # Always record energy
+            energies.append(float(energy))
 
             if self.policy:
                 _, decision = self.policy.execute(state)
+
                 if decision.verdict == "ACCEPT":
                     accepted += 1
-                    energies.append(decision.energy)
                 else:
-                    # rollback
-                    state["quality"] -= random.gauss(0, self.noise_scale)
-            else:
-                energies.append(energy)
+                    # rollback to previous state
+                    state["quality"] = prev_quality
+
+            # No policy → baseline drift
+
+        # Guard against empty (should not happen now)
+        if len(energies) == 0:
+            return {
+                "mean_energy": float("nan"),
+                "max_energy": float("nan"),
+                "accept_rate": 0.0,
+                "energies": [],
+            }
 
         return {
             "mean_energy": float(np.mean(energies)),
