@@ -83,7 +83,7 @@ z = (energy - μ) / σ
 
 Decision boundary:
 
-```
+```css
 REJECT  if z ≥ τ_z + reject_margin
 REVIEW  if z >  τ_z + review_margin
 ACCEPT  otherwise
@@ -91,7 +91,7 @@ ACCEPT  otherwise
 
 Where:
 
-```
+```math
 τ_z = (τ - μ) / σ
 ```
 
@@ -134,11 +134,11 @@ This guarantees:
 
 See:
 
-* `docs/theory.md`
-* `docs/calibration.md`
-* `docs/architecture.md`
-* `docs/experiments.md`
-* `docs/testing.md`
+* [`docs/theory.md`](docs/theory.md)
+* [`docs/calibration.md`](docs/calibration.md)
+* [`docs/architecture.md`](docs/architecture.md)
+* [`docs/experiments.md`](docs/experiments.md)
+* [`docs/testing.md`](docs/testing.md)
 
 ---
 
